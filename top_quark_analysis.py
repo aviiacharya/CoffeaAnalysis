@@ -34,15 +34,15 @@ class TopQuarkProcessor(processor.ProcessorABC):
         tops = genparticles[(abs(genparticles.pdgId) == 6)]  # PDG ID 6 is the top quark
         top_pt = tops.pt
 
-        # Children of top quarks to identify decay channels
+        # Children of top quarks 
         tops_children = tops.distinctChildren
 
-        # Identify leptonic decays (top decaying to e, mu, or tau)
+        # Identify leptonic decays 
         is_leptonic = ak.any(abs(tops_children.pdgId) == 11, axis=-1) | \
                       ak.any(abs(tops_children.pdgId) == 13, axis=-1) | \
                       ak.any(abs(tops_children.pdgId) == 15, axis=-1)
 
-        # Hadronic decay: anything not leptonic is hadronic
+        # Hadronic decay
         is_hadronic = ~is_leptonic
 
         # Get the mass of the top quarks
@@ -64,13 +64,11 @@ def run_analysis():
     from coffea.processor import run
     from coffea.nanoevents import NanoEventsFactory, NanoAODSchema
 
-    # The ROOT file provided
     fname = "root://cmsxrootd.fnal.gov//store/mc/RunIISummer20UL18NanoAODv9/TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8/NANOAODSIM/106X_upgrade2018_realistic_v16_L1v1-v1/120000/0520A050-AF68-EF43-AA5B-5AA77C74ED73.root"
 
-    # Create the fileset for Coffea processor
+    # Create the fileset
     fileset = {'TTToSemiLeptonic': [fname]}
-
-    # Run the job
+    
     result = run(
         fileset=fileset,
         treename='Events',
@@ -84,32 +82,23 @@ def run_analysis():
 
 
 if __name__ == "__main__":
-    # Run the analysis
+
     result = run_analysis()
 
-    # Access the histograms
+ 
     hadronic_hist = result['hadronic_top_mass']
     leptonic_hist = result['leptonic_top_mass']
-
-    # Plot the histograms
     plt.figure(figsize=(10, 6))
-
-    # Plot Hadronic Top Mass
     hist.plot1d(hadronic_hist, clear=False, label="Hadronic Top Decay", color="blue")
-
-    # Plot Leptonic Top Mass
     hist.plot1d(leptonic_hist, clear=False, label="Leptonic Top Decay", color="red")
 
-    # Add titles and labels
     plt.title("Top Quark Mass Distribution")
     plt.xlabel("Mass [GeV]")
     plt.ylabel("Events")
     plt.legend()
     plt.grid(True)
 
-    # Save the plot as a PNG file
     plt.savefig("top_quark_mass_distribution.png")
 
-    # Show the plot
     plt.show()
 
